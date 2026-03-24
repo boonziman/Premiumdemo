@@ -6,7 +6,6 @@
 baseURL       = 'https://boonziman.github.io/Premiumdemo/'
 languageCode  = 'en-us'
 title         = 'ARCHITECT'
-theme         = ''
 
 disableKinds  = ['taxonomy', 'term', 'RSS', 'sitemap', '404']
 
