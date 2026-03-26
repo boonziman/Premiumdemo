@@ -163,58 +163,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  // 9. HLS HERO VIDEO BACKGROUND
+  // 9. HERO VIDEO BACKGROUND — self-hosted MP4, simple fade-in
   const heroVideo = document.getElementById('hero-video');
   if (heroVideo) {
-    const hlsSrc = 'https://stream.mux.com/s8pMcOvMQXc4GD6AX4e1o01xFogFxipmuKltNfSYza0200.m3u8';
-
-    // Use native loop attribute — no manual timeupdate seeking
-    heroVideo.loop = true;
-
-    function initHeroVideo() {
-      if (heroVideo.canPlayType('application/vnd.apple.mpegurl')) {
-        // Safari: native HLS support
-        heroVideo.src = hlsSrc;
-        heroVideo.play().catch(() => {});
-      } else if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-        // Chrome / Firefox: use hls.js with tuned config
-        const hls = new Hls({
-          enableWorker: true,
-          lowLatencyMode: false,
-          backBufferLength: 30,
-          maxBufferLength: 60,
-          maxMaxBufferLength: 120,
-          startFragPrefetch: true
-        });
-        hls.loadSource(hlsSrc);
-        hls.attachMedia(heroVideo);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          heroVideo.play().catch(() => {});
-        });
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                hls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                hls.recoverMediaError();
-                break;
-              default:
-                console.warn('HLS fatal error, falling back to CSS curtain');
-                break;
-            }
-          }
-        });
-      }
-    }
-
-    // Fade in video smoothly once it starts playing
     heroVideo.addEventListener('playing', () => {
       heroVideo.classList.add('loaded');
     });
-
-    initHeroVideo();
   }
 
 

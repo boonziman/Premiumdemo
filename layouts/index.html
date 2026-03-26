@@ -6,7 +6,9 @@
 
   <!-- HLS Video Background -->
   <div class="absolute inset-0 z-[2]">
-    <video id="hero-video" class="hero-video" autoplay muted playsinline loop></video>
+    <video id="hero-video" class="hero-video" autoplay muted playsinline loop>
+      <source src="{{ "hero-bg.mp4" | relURL }}" type="video/mp4" />
+    </video>
   </div>
 
   <!-- Bottom Fade Gradient -->
