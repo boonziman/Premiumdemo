@@ -168,14 +168,24 @@ document.addEventListener('DOMContentLoaded', () => {
   if (heroVideo) {
     const hlsSrc = 'https://stream.mux.com/s8pMcOvMQXc4GD6AX4e1o01xFogFxipmuKltNfSYza0200.m3u8';
 
+    // Use native loop attribute — no manual timeupdate seeking
+    heroVideo.loop = true;
+
     function initHeroVideo() {
       if (heroVideo.canPlayType('application/vnd.apple.mpegurl')) {
         // Safari: native HLS support
         heroVideo.src = hlsSrc;
         heroVideo.play().catch(() => {});
       } else if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-        // Chrome / Firefox: use hls.js
-        const hls = new Hls({ enableWorker: true });
+        // Chrome / Firefox: use hls.js with tuned config
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+          backBufferLength: 30,
+          maxBufferLength: 60,
+          maxMaxBufferLength: 120,
+          startFragPrefetch: true
+        });
         hls.loadSource(hlsSrc);
         hls.attachMedia(heroVideo);
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -183,7 +193,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         hls.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
-            console.warn('HLS error, falling back to CSS curtain');
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hls.recoverMediaError();
+                break;
+              default:
+                console.warn('HLS fatal error, falling back to CSS curtain');
+                break;
+            }
           }
         });
       }
@@ -192,14 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fade in video smoothly once it starts playing
     heroVideo.addEventListener('playing', () => {
       heroVideo.classList.add('loaded');
-    });
-
-    // Seamless loop: seek back just before end to avoid visible gap/cut
-    heroVideo.addEventListener('timeupdate', () => {
-      if (heroVideo.duration && heroVideo.currentTime > heroVideo.duration - 0.5) {
-        heroVideo.currentTime = 0.1;
-        heroVideo.play().catch(() => {});
-      }
     });
 
     initHeroVideo();

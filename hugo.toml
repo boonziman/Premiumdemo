@@ -7,7 +7,7 @@ baseURL       = 'https://boonziman.github.io/premiumdemo/'
 languageCode  = 'en-us'
 title         = 'ARCHITECT'
 
-disableKinds  = ['taxonomy', 'term', 'RSS', 'sitemap', '404']
+disableKinds  = ['taxonomy', 'term', 'RSS', 'sitemap']
 
 [params]
   description   = 'The Silent Architect — Strategic presence through organic brutalism. We build the silence.'
